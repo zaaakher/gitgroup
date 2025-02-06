@@ -1,9 +1,10 @@
-# Gitlist
+# Gitgroup
 
 Create lists of git repositories and group them however you want. 
 
 ## Features
 
-- [ ] Create a list of git repositories
-- [ ] Group repositories by various properties
-- [ ] Export lists as json
+- [x] Create a list of git repositories
+- [x] Group repositories by various properties
+- [x] Export lists as json
+- [x] Import lists as json
