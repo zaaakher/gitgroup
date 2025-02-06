@@ -19,9 +19,15 @@ import { Button, buttonVariants } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 
 function App() {
-  const [repoList, setRepoList] = useState<RepoList>({
-    title: "My Repository List",
-    groups: [],
+  const [repoList, setRepoList] = useState<RepoList>(() => {
+    // Load from localStorage during initialization
+    const savedData = loadFromLocalStorage();
+    return (
+      savedData || {
+        title: "My Repository List",
+        groups: [],
+      }
+    );
   });
   const [newGroupName, setNewGroupName] = useState("");
   const [newRepoUrl, setNewRepoUrl] = useState("");
@@ -29,15 +35,8 @@ function App() {
   const [selectedDomain, setSelectedDomain] = useState("https://github.com/");
 
   useEffect(() => {
-    const savedData = loadFromLocalStorage();
-    console.log("Loading data from localStorage:", savedData);
-    if (savedData) {
-      setRepoList(savedData);
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log("Saving data to localStorage:", repoList);
+    // Only save to localStorage when repoList changes
+    // and it's not the initial load
     saveToLocalStorage(repoList);
   }, [repoList]);
 
