@@ -5,7 +5,7 @@ import {
   saveToLocalStorage,
   loadFromLocalStorage,
   downloadJson,
-} from "./utils";
+} from "./lib/utils";
 import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
 import {
@@ -30,12 +30,14 @@ function App() {
 
   useEffect(() => {
     const savedData = loadFromLocalStorage();
+    console.log("Loading data from localStorage:", savedData);
     if (savedData) {
       setRepoList(savedData);
     }
   }, []);
 
   useEffect(() => {
+    console.log("Saving data to localStorage:", repoList);
     saveToLocalStorage(repoList);
   }, [repoList]);
 
@@ -247,7 +249,7 @@ function App() {
                     <Trash2 size={16} />
                   </Button>
                 </div>
-                <Separator className="mb-4"/>
+                <Separator className="mb-4" />
 
                 <div className="space-y-2">
                   {group.repositories.map((repo) => (
