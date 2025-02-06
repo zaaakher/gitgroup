@@ -210,18 +210,36 @@ function App() {
                     type="text"
                     value={newRepoUrl}
                     onChange={(e) => setNewRepoUrl(e.target.value)}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (e.key === "Enter") {
+                        if (selectedGroupId) {
+                          addRepository();
+                        } else {
+                          if (repoList.groups.length === 0) {
+                            alert("Please create a group first");
+                          } else {
+                            alert("Please select a group");
+                          }
+                        }
+                      }
+                    }}
                   />
                 </div>
               </div>
               <div className="space-y-2 w-full max-w-[300px]">
                 <Label htmlFor={"repo_name"}>Group</Label>
-                <div className="flex rounded-lg  shadow-black/5">
+                <div className="flex flex-col gap-2 rounded-lg  shadow-black/5">
                   <Select
+                    disabled={repoList.groups.length === 0}
                     value={selectedGroupId || ""}
                     onValueChange={(value) => setSelectedGroupId(value)}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a group" />
+                      {repoList.groups.length > 0 ? (
+                        <SelectValue placeholder="Select a group" />
+                      ) : (
+                        <div>Create a group first</div>
+                      )}
                     </SelectTrigger>
 
                     <SelectContent>
