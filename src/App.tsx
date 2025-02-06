@@ -134,8 +134,20 @@ function App() {
   };
 
   return (
-    <div className="bg-gray-50 p-8 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-50 p-0 min-h-screen">
+      <div className="flex flex-row justify-between items-center border-b p-4">
+        <h1 className="text-2xl font-bold">Gitgroup</h1>
+        <Button
+          variant={"outline"}
+          onClick={() => {
+            window.open("https://github.com/zaaakher/gitgroup", "_blank");
+          }}
+        >
+          <img src="/github.png" alt="Github" className="w-4 h-4" />
+          Star
+        </Button>
+      </div>
+      <div className="max-w-4xl mx-auto p-8 px-4 md:px-0">
         <div>
           <Input
             type="text"
