@@ -153,10 +153,10 @@ function App() {
             type="text"
             value={repoList.title}
             onChange={updateTitle}
-            className="text-2xl font-bold mb-4 p-4 h-14 w-full border-none focus:ring-0"
+            className="text-2xl font-bold mb-4 p-4 h-14 w-full border focus:ring-0"
           />
 
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-4">
             <Button onClick={handleExport}>
               <Download size={16} /> Export (JSON)
             </Button>
