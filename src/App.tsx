@@ -1,15 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Download, Upload, Save, Trash2, FolderPlus } from 'lucide-react';
-import type { RepoList, Group, Repository } from './types';
-import { saveToLocalStorage, loadFromLocalStorage, downloadJson } from './utils';
+import React, { useState, useEffect } from "react";
+import { Plus, Download, Upload, Trash2, FolderPlus } from "lucide-react";
+import type { RepoList } from "./types";
+import {
+  saveToLocalStorage,
+  loadFromLocalStorage,
+  downloadJson,
+} from "./utils";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectContent,
+  SelectValue,
+} from "./components/ui/select";
+import { Button } from "./components/ui/button";
 
 function App() {
   const [repoList, setRepoList] = useState<RepoList>({
-    title: 'My Repository List',
-    groups: []
+    title: "My Repository List",
+    groups: [],
   });
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newRepoUrl, setNewRepoUrl] = useState('');
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newRepoUrl, setNewRepoUrl] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,63 +39,75 @@ function App() {
 
   const addGroup = () => {
     if (!newGroupName.trim()) return;
-    setRepoList(prev => ({
+    setRepoList((prev) => ({
       ...prev,
-      groups: [...prev.groups, {
-        id: crypto.randomUUID(),
-        name: newGroupName,
-        repositories: []
-      }]
+      groups: [
+        ...prev.groups,
+        {
+          id: crypto.randomUUID(),
+          name: newGroupName,
+          repositories: [],
+        },
+      ],
     }));
-    setNewGroupName('');
+    setNewGroupName("");
   };
 
   const addRepository = () => {
     if (!newRepoUrl.trim() || !selectedGroupId) return;
-    setRepoList(prev => ({
+    setRepoList((prev) => ({
       ...prev,
-      groups: prev.groups.map(group => {
+      groups: prev.groups.map((group) => {
+        console.log("newRepoUrl", newRepoUrl);
         if (group.id === selectedGroupId) {
           return {
             ...group,
-            repositories: [...group.repositories, {
-              id: crypto.randomUUID(),
-              url: newRepoUrl,
-              name: new URL(newRepoUrl).pathname.split('/').slice(-2).join('/'),
-              addedAt: new Date().toISOString()
-            }]
+            repositories: [
+              ...group.repositories,
+              {
+                id: crypto.randomUUID(),
+                url: newRepoUrl,
+                name: new URL(newRepoUrl).pathname
+                  .split("/")
+                  .slice(-2)
+                  .join("/"),
+                addedAt: new Date().toISOString(),
+              },
+            ],
           };
         }
         return group;
-      })
+      }),
     }));
-    setNewRepoUrl('');
+    setNewRepoUrl("");
   };
 
   const removeRepository = (groupId: string, repoId: string) => {
-    setRepoList(prev => ({
+    setRepoList((prev) => ({
       ...prev,
-      groups: prev.groups.map(group => {
+      groups: prev.groups.map((group) => {
         if (group.id === groupId) {
           return {
             ...group,
-            repositories: group.repositories.filter(repo => repo.id !== repoId)
+            repositories: group.repositories.filter(
+              (repo) => repo.id !== repoId
+            ),
           };
         }
         return group;
-      })
+      }),
     }));
   };
 
   const removeGroup = (groupId: string) => {
-    setRepoList(prev => ({
+    setRepoList((prev) => ({
       ...prev,
-      groups: prev.groups.filter(group => group.id !== groupId)
+      groups: prev.groups.filter((group) => group.id !== groupId),
     }));
   };
 
   const handleExport = () => {
-    downloadJson(repoList, 'repository-list.json');
+    downloadJson(repoList, "repository-list.json");
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,14 +120,15 @@ function App() {
         const imported = JSON.parse(e.target?.result as string);
         setRepoList(imported);
       } catch (error) {
-        alert('Invalid file format');
+        console.error(error);
+        alert("Invalid file format");
       }
     };
     reader.readAsText(file);
   };
 
   const updateTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRepoList(prev => ({ ...prev, title: e.target.value }));
+    setRepoList((prev) => ({ ...prev, title: e.target.value }));
   };
 
   return (
@@ -114,7 +141,7 @@ function App() {
             onChange={updateTitle}
             className="text-2xl font-bold mb-4 w-full border-none focus:ring-0"
           />
-          
+
           <div className="flex gap-4 mb-6">
             <button
               onClick={handleExport}
@@ -132,56 +159,82 @@ function App() {
               />
             </label>
           </div>
-
-          <div className="mb-6">
+          <div className="flex flex-col gap-4">
             <div className="flex gap-2">
-              <input
+              <Input
                 type="text"
                 placeholder="New Group Name"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                className="flex-1 rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="h-10"
               />
-              <button
-                onClick={addGroup}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-              >
-                <FolderPlus size={16} /> Add Group
-              </button>
+              <Button onClick={addGroup}>
+                <FolderPlus /> Create Group
+              </Button>
             </div>
-          </div>
 
-          <div className="mb-6">
-            <div className="flex gap-2">
-              <select
-                value={selectedGroupId || ''}
-                onChange={(e) => setSelectedGroupId(e.target.value)}
-                className="flex-1 rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-              >
-                <option value="">Select Group</option>
-                {repoList.groups.map(group => (
-                  <option key={group.id} value={group.id}>{group.name}</option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Repository URL"
-                value={newRepoUrl}
-                onChange={(e) => setNewRepoUrl(e.target.value)}
-                className="flex-1 rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <button
-                onClick={addRepository}
-                disabled={!selectedGroupId}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-              >
+            <div className="flex flex-row gap-2 items-end">
+              <div className="space-y-2 w-full">
+                <Label htmlFor={"repo_name"}>Repository</Label>
+                <div className="flex rounded-lg  shadow-black/5">
+                  <div className="relative">
+                    <Select>
+                      <SelectTrigger className="w-full  rounded-e-none">
+                        <SelectValue placeholder="github.com/" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectItem value="https://github.com/">
+                          github.com/
+                        </SelectItem>
+                        <SelectItem value="https://gitlab.com/">
+                          gitlab.com/
+                        </SelectItem>
+                        <SelectItem value="https://bitbucket.org/">
+                          bitbucket.org/
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Input
+                    id={"repo_name"}
+                    className="-ms-px rounded-s-none shadow-none focus-visible:z-10 h-10 py-4"
+                    placeholder="username/repository-name"
+                    type="text"
+                    value={newRepoUrl}
+                    onChange={(e) => setNewRepoUrl(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2 w-full max-w-[300px]">
+                <Label htmlFor={"repo_name"}>Group</Label>
+                <div className="flex rounded-lg  shadow-black/5">
+                  <Select
+                    value={selectedGroupId || ""}
+                    onValueChange={(value) => setSelectedGroupId(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a group" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {repoList.groups.map((group) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <Button onClick={addRepository} disabled={!selectedGroupId}>
                 <Plus size={16} /> Add Repo
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {repoList.groups.map(group => (
+          <div className="space-y-6 mt-4">
+            {repoList.groups.map((group) => (
               <div key={group.id} className="border rounded-lg p-4">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold">{group.name}</h3>
@@ -193,7 +246,7 @@ function App() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {group.repositories.map(repo => (
+                  {group.repositories.map((repo) => (
                     <div
                       key={repo.id}
                       className="flex justify-between items-center p-2 bg-gray-50 rounded"
