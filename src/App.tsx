@@ -109,7 +109,7 @@ function App() {
   };
 
   const handleExport = () => {
-    downloadJson(repoList, "repository-list.json");
+    downloadJson(repoList, `${repoList.title}.json`);
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +134,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="bg-gray-50 p-8 min-h-screen">
       <div className="max-w-4xl mx-auto">
         <div>
           <Input
@@ -146,10 +146,10 @@ function App() {
 
           <div className="flex gap-4 mb-6">
             <Button onClick={handleExport}>
-              <Download size={16} /> Export
+              <Download size={16} /> Export (JSON)
             </Button>
             <label className={buttonVariants({ variant: "outline" })}>
-              <Upload size={16} /> Import
+              <Upload size={16} /> Import (JSON)
               <input
                 type="file"
                 accept=".json"
@@ -165,6 +165,11 @@ function App() {
                 placeholder="New Group Name"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === "Enter") {
+                    addGroup();
+                  }
+                }}
                 className="h-10"
               />
               <Button onClick={addGroup}>
