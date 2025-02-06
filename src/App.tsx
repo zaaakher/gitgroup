@@ -25,6 +25,7 @@ function App() {
   const [newGroupName, setNewGroupName] = useState("");
   const [newRepoUrl, setNewRepoUrl] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [selectedDomain, setSelectedDomain] = useState("https://github.com/");
 
   useEffect(() => {
     const savedData = loadFromLocalStorage();
@@ -55,10 +56,12 @@ function App() {
 
   const addRepository = () => {
     if (!newRepoUrl.trim() || !selectedGroupId) return;
+
+    const fullUrl = `${selectedDomain}${newRepoUrl}`;
+
     setRepoList((prev) => ({
       ...prev,
       groups: prev.groups.map((group) => {
-        console.log("newRepoUrl", newRepoUrl);
         if (group.id === selectedGroupId) {
           return {
             ...group,
@@ -66,11 +69,8 @@ function App() {
               ...group.repositories,
               {
                 id: crypto.randomUUID(),
-                url: newRepoUrl,
-                name: new URL(newRepoUrl).pathname
-                  .split("/")
-                  .slice(-2)
-                  .join("/"),
+                url: fullUrl,
+                name: newRepoUrl,
                 addedAt: new Date().toISOString(),
               },
             ],
@@ -178,9 +178,12 @@ function App() {
                 <Label htmlFor={"repo_name"}>Repository</Label>
                 <div className="flex rounded-lg  shadow-black/5">
                   <div className="relative">
-                    <Select>
-                      <SelectTrigger className="w-full  rounded-e-none">
-                        <SelectValue placeholder="github.com/" />
+                    <Select
+                      value={selectedDomain}
+                      onValueChange={setSelectedDomain}
+                    >
+                      <SelectTrigger className="w-full rounded-e-none">
+                        <SelectValue placeholder="Select domain" />
                       </SelectTrigger>
 
                       <SelectContent>
@@ -251,14 +254,22 @@ function App() {
                       key={repo.id}
                       className="flex justify-between items-center p-2 bg-gray-50 rounded"
                     >
-                      <a
-                        href={repo.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        {repo.name}
-                      </a>
+                      <div className="flex flex-row gap-4 items-center">
+                        <img
+                          src={`/${repo.url.split("/")[2].split(".")[0]}.png`}
+                          alt={repo.url.split("/")[2]}
+                          className="w-4 h-4"
+                        />
+
+                        <a
+                          href={repo.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          {repo.name}
+                        </a>
+                      </div>
                       <button
                         onClick={() => removeRepository(group.id, repo.id)}
                         className="text-red-600 hover:text-red-800"
